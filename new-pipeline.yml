@@ -41,9 +41,7 @@ stages:
       inputs:
         SourceFolder: '$(System.DefaultWorkingDirectory)/kube-manifests'
         Contents: '**'
-        TargetFolder: '$(Build.ArtifactStagingDirectory'
-        OverWrite: true
-    - bash: echo After copying to Build Artifact Directory; ls -R $(Build.ArtifactStagingDirectory) 
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'''
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
