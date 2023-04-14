@@ -1,32 +1,35 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+name: 2023.$(Rev:rrr)
 
-trigger:
-- master
+trigger: none
+pr: none
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
+variables:
+  - name: containerRegistry
+    value: 'Dev Acr Admin'
+  - name: ImageTag
+    value: $(Build.BuildNumber)
+  - name: imageRepository
+    value: la-middleware
 
 stages:
-# Build Stage 
-- stage: Build
-  displayName: Build Stage
-  jobs:
-  - job: Build
-    displayName: Build Job
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps: 
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'Dev Acr Admin'
-        repository: 'la-middleware'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(Pipeline.Workspace)'
-        artifact: 'mafiesting'
-        publishLocation: 'devops/k8s'
+  - stage: Build
+    displayName: Build stage
+    jobs:
+      - job: Build
+        steps:
+          - task: Docker@2
+            displayName: Build and push an image to container registry
+            inputs:
+              command: buildAndPush
+              repository: $(imageRepository)
+              dockerfile: Dockerfile
+              containerRegistry: 'Dev Acr Admin'
+              tags: |
+                $(ImageTag)
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              artifactName: 'manifests'
+              path: 'devops/k8s'
